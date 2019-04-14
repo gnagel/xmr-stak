@@ -9,12 +9,7 @@
 #include "xmrstak/backend/cryptonight.hpp"
 #include "xmrstak/backend/cpu/cpuType.hpp"
 #include <string>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
 #include <unistd.h>
-#endif // _WIN32
 
 
 namespace xmrstak
@@ -165,15 +160,8 @@ private:
 
 	void detectCPUConf()
 	{
-#ifdef _WIN32
-		SYSTEM_INFO info;
-		GetSystemInfo(&info);
-		corecnt = info.dwNumberOfProcessors;
-		linux_layout = false;
-#else
 		corecnt = sysconf(_SC_NPROCESSORS_ONLN);
 		linux_layout = true;
-#endif // _WIN32
 	}
 
 	int32_t L3KB_size = 0;

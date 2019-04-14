@@ -3,12 +3,6 @@
 #include "xmrstak/backend/cryptonight.hpp"
 #include <stdint.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <malloc.h>
-#include <intrin.h>
-#define HAS_WIN_INTRIN_API
-#endif
-
 #ifdef __GNUC__
 #include <x86intrin.h>
 #if !defined(HAS_WIN_INTRIN_API)

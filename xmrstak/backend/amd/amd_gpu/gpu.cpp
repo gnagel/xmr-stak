@@ -46,19 +46,6 @@
 #endif
 
 
-#ifdef _WIN32
-#include <windows.h>
-
-static inline void create_directory(std::string dirname)
-{
-    _mkdir(dirname.data());
-}
-
-static inline void port_sleep(size_t sec)
-{
-	Sleep(sec * 1000);
-}
-#else
 #include <unistd.h>
 #include <pwd.h>
 
@@ -71,7 +58,6 @@ static inline void port_sleep(size_t sec)
 {
 	sleep(sec);
 }
-#endif // _WIN32
 
 #if 0
 static inline long long unsigned int int_port(size_t i)
@@ -312,9 +298,6 @@ size_t InitOpenCLGpu(cl_context opencl_ctx, GpuContext* ctx, const char* source_
 		options += " -DOPENCL_DRIVER_MAJOR=" + std::to_string(std::stoi(openCLDriverVer.data()) / 100);
 
 		uint32_t isWindowsOs = 0;
-#ifdef _WIN32
-		isWindowsOs = 1;
-#endif
 		options += " -DIS_WINDOWS_OS=" + std::to_string(isWindowsOs);
 
 		if(miner_algo == cryptonight_gpu)

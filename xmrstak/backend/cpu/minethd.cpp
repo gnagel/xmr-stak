@@ -52,9 +52,6 @@
 #include <bitset>
 #include <unordered_map>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
 #include <pthread.h>
 
 #if defined(__APPLE__)
@@ -65,8 +62,6 @@
 #include <pthread_np.h>
 #endif //__APPLE__
 
-#endif //_WIN32
-
 namespace xmrstak
 {
 namespace cpu
@@ -74,18 +69,7 @@ namespace cpu
 
 bool minethd::thd_setaffinity(std::thread::native_handle_type h, uint64_t cpu_id)
 {
-#if defined(_WIN32)
-	// we can only pin up to 64 threads
-	if(cpu_id < 64)
-	{
-		return SetThreadAffinityMask(h, 1ULL << cpu_id) != 0;
-	}
-	else
-	{
-		printer::inst()->print_msg(L0, "WARNING: Windows supports only affinity up to 63.");
-		return false;
-	}
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 	thread_port_t mach_thread;
 	thread_affinity_policy_data_t policy = { static_cast<integer_t>(cpu_id) };
 	mach_thread = pthread_mach_thread_np(h);
