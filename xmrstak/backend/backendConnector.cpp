@@ -31,9 +31,9 @@
 #include "xmrstak/params.hpp"
 
 #include "cpu/minethd.hpp"
-#ifndef CONF_NO_CUDA
-#	include "nvidia/minethd.hpp"
-#endif
+//#ifndef CONF_NO_CUDA
+//#	include "nvidia/minethd.hpp"
+//#endif
 #ifndef CONF_NO_OPENCL
 #	include "amd/minethd.hpp"
 #endif
@@ -79,40 +79,41 @@ std::vector<iBackend*>* BackendConnector::thread_starter(miner_work& pWork)
 	}
 #endif
 
-#ifndef CONF_NO_CUDA
-	if(params::inst().useNVIDIA)
-	{
-		plugin nvidiaplugin;
-		std::vector<std::string> libNames = {"xmrstak_cuda_backend_cuda10_0", "xmrstak_cuda_backend_cuda9_2", "xmrstak_cuda_backend"};
-		size_t numWorkers = 0u;
-
-		for( const auto & name : libNames)
-		{
-			printer::inst()->print_msg(L0, "NVIDIA: try to load library '%s'", name.c_str());
-			nvidiaplugin.load("NVIDIA", name);
-			std::vector<iBackend*>* nvidiaThreads = nvidiaplugin.startBackend(static_cast<uint32_t>(pvThreads->size()), pWork, environment::inst());
-			if(nvidiaThreads != nullptr)
-			{
-				pvThreads->insert(std::end(*pvThreads), std::begin(*nvidiaThreads), std::end(*nvidiaThreads));
-				numWorkers = nvidiaThreads->size();
-				delete nvidiaThreads;
-			}
-			else
-			{
-				// remove the plugin if we have found no GPUs
-				nvidiaplugin.unload();
-			}
-			// we found at leat one working GPU
-			if(numWorkers != 0)
-			{
-				printer::inst()->print_msg(L0, "NVIDIA: use library '%s'", name.c_str());
-				break;
-			}
-		}
-		if(numWorkers == 0)
-			printer::inst()->print_msg(L0, "WARNING: backend NVIDIA disabled.");
-	}
-#endif
+//#ifndef CONF_NO_CUDA
+//	if(params::inst().useNVIDIA)
+//	{
+//		plugin nvidiaplugin;
+//		std::vector<std::string> libNames = {"xmrstak_cuda_backend_cuda10_0", "xmrstak_cuda_backend_cuda9_2", "xmrstak_cuda_backend"};
+//		size_t numWorkers = 0u;
+//
+//		for( const auto & name : libNames)
+//		{
+//			printer::inst()->print_msg(L0, "NVIDIA: try to load library '%s'", name.c_str());
+//			nvidiaplugin.load("NVIDIA", name);
+//			std::vector<iBackend*>* nvidiaThreads = nvidiaplugin.startBackend(static_cast<uint32_t>(pvThreads->size()), pWork, environment::inst());
+//			if(nvidiaThreads != nullptr)
+//			{
+//				pvThreads->insert(std::end(*pvThreads), std::begin(*nvidiaThreads), std::end(*nvidiaThreads));
+//				numWorkers = nvidiaThreads->size();
+//				delete nvidiaThreads;
+//			}
+//			else
+//			{
+//				// remove the plugin if we have found no GPUs
+//				nvidiaplugin.unload();
+//			}
+//			// we found at leat one working GPU
+//			if(numWorkers != 0)
+//			{
+//				printer::inst()->print_msg(L0, "NVIDIA: use library '%s'", name.c_str());
+//				break;
+//			}
+//		}
+//		if(numWorkers == 0)
+//			printer::inst()->print_msg(L0, "WARNING: backend NVIDIA disabled.");
+//	}
+//#endif
+//
 
 #ifndef CONF_NO_CPU
 	if(params::inst().useCPU)
