@@ -43,13 +43,8 @@
 #include <vector>
 
 #ifndef USE_PRECOMPILED_HEADERS
-#ifdef WIN32
-#include <direct.h>
-#include <windows.h>
-#else
 #include <sys/types.h>
 #include <dlfcn.h>
-#endif
 #include <iostream>
 #endif
 
@@ -58,11 +53,7 @@ namespace xmrstak
 namespace nvidia
 {
 
-#ifdef WIN32
-	HINSTANCE lib_handle;
-#else
 	void *lib_handle;
-#endif
 
 minethd::minethd(miner_work& pWork, size_t iNo, const jconf::thd_cfg& cfg)
 {
@@ -110,9 +101,6 @@ bool minethd::self_test()
 
 extern "C"
 {
-#ifdef WIN32
-__declspec(dllexport)
-#endif
 std::vector<iBackend*>* xmrstak_start_backend(uint32_t threadOffset, miner_work& pWork, environment& env)
 {
 	environment::inst(&env);

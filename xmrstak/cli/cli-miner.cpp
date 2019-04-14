@@ -49,12 +49,6 @@
 #include <openssl/err.h>
 #endif
 
-#ifdef _WIN32
-#	define strcasecmp _stricmp
-#	include <windows.h>
-#	include "xmrstak/misc/uac.hpp"
-#endif // _WIN32
-
 int do_benchmark(int block_version, int wait_sec, int work_sec);
 
 void help()
@@ -69,9 +63,6 @@ void help()
 	cout<<"  -V, --version-long         show long version number"<<endl;
 	cout<<"  -c, --config FILE          common miner configuration file"<<endl;
 	cout<<"  -C, --poolconf FILE        pool configuration file"<<endl;
-#ifdef _WIN32
-	cout<<"  --noUAC                    disable the UAC dialog"<<endl;
-#endif
 	cout<<"  --benchmark BLOCKVERSION   ONLY do a benchmark and exit"<<endl;
 	cout<<"  --benchwait WAIT_SEC             ... benchmark wait time"<<endl;
 	cout<<"  --benchwork WORK_SEC             ... benchmark work time"<<endl;
@@ -105,12 +96,7 @@ void help()
 	cout<<"  --use-nicehash             the pool should run in nicehash mode"<<endl;
 	cout<<"  --currency NAME            currency to mine"<<endl;
 	cout<< endl;
-#ifdef _WIN32
-	cout<<"Environment variables:\n"<<endl;
-	cout<<"  XMRSTAK_NOWAIT             disable the dialog `Press any key to exit."<<std::endl;
-	cout<<"                	            for non UAC execution"<<endl;
-	cout<< endl;
-#endif
+
 	std::string algos;
 	jconf::GetAlgoList(algos);
 	cout<< "Supported coin options: " << endl << algos << endl;
@@ -746,15 +732,6 @@ int main(int argc, char *argv[])
 		win_exit();
 		return 1;
 	}
-
-#ifdef _WIN32
-	/* For Windows 7 and 8 request elevation at all times unless we are using slow memory */
-	if(jconf::inst()->GetSlowMemSetting() != jconf::slow_mem_cfg::always_use && !IsWindows10OrNewer())
-	{
-		printer::inst()->print_msg(L0, "Elevating due to Windows 7 or 8. You need Windows 10 to use fast memory without UAC elevation.");
-		RequestElevation();
-	}
-#endif
 
 	if(strlen(jconf::inst()->GetOutputFile()) != 0)
 		printer::inst()->open_logfile(jconf::inst()->GetOutputFile());

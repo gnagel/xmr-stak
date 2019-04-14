@@ -4,13 +4,7 @@
 #include <cstring>
 #include <inttypes.h>
 #include <cstdio>
-
-#ifdef _WIN32
-#define strcasecmp _stricmp
-#include <intrin.h>
-#else
 #include <cpuid.h>
-#endif
 
 namespace xmrstak
 {
@@ -19,12 +13,7 @@ namespace cpu
 	void cpuid(uint32_t eax, int32_t ecx, int32_t val[4])
 	{
 		std::memset(val, 0, sizeof(int32_t)*4);
-
-	#ifdef _WIN32
-		__cpuidex(val, eax, ecx);
-	#else
 		__cpuid_count(eax, ecx, val[0], val[1], val[2], val[3]);
-	#endif
 	}
 
 	int32_t get_masked(int32_t val, int32_t h, int32_t l)

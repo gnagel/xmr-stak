@@ -330,11 +330,9 @@ endif()
 ################################################################################
 # Find PThreads
 ################################################################################
+find_package(Threads REQUIRED)
+set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-if(NOT WIN32)
-    find_package(Threads REQUIRED)
-    set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
-endif()
 ################################################################################
 # Find microhttpd
 ################################################################################
@@ -423,14 +421,6 @@ if(HWLOC_ENABLE)
     endif()
 else()
     add_definitions("-DCONF_NO_HWLOC")
-endif()
-
-################################################################################
-# Windows Sockets
-################################################################################
-
-if(WIN32)
-    set(LIBS ${LIBS} wsock32 ws2_32)
 endif()
 
 ################################################################################
@@ -628,22 +618,12 @@ if( NOT CMAKE_INSTALL_PREFIX STREQUAL PROJECT_BINARY_DIR )
     install(TARGETS xmr-stak
             RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${EXECUTABLE_OUTPUT_PATH}")
     if(CUDA_FOUND)
-        if(WIN32)
-            install(TARGETS xmrstak_cuda_backend
-                RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
-        else()
-            install(TARGETS xmrstak_cuda_backend
-                LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
-        endif()
+        install(TARGETS xmrstak_cuda_backend
+            LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
     endif()
     if(OpenCL_FOUND)
-        if(WIN32)
-            install(TARGETS xmrstak_opencl_backend
-                RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
-        else()
-            install(TARGETS xmrstak_opencl_backend
-                LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
-        endif()
+        install(TARGETS xmrstak_opencl_backend
+            LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIBRARY_OUTPUT_PATH}")
     endif()
 else()
     # this rule is used if the install prefix is the build directory

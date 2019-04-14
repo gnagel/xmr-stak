@@ -23,15 +23,7 @@
 #include <stdio.h>
 #include <cfenv>
 #include <utility>
-
-#ifdef _WIN64
-#	include <winsock2.h>
-#	include <windows.h>
-#	include <ntsecapi.h>
-#	include <tchar.h>
-#else
-#	include <sys/mman.h>
-#endif
+#include <sys/mman.h>
 
 #ifdef __GNUC__
 #include <x86intrin.h>
@@ -46,7 +38,7 @@ static inline uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* hi)
 #include <intrin.h>
 #endif // __GNUC__
 
-#if !defined(_LP64) && !defined(_WIN64)
+#if !defined(_LP64)
 #error You are trying to do a 32-bit build. This will all end in tears. I know it.
 #endif
 
@@ -1204,49 +1196,30 @@ static void patchCode(T dst, U src, const uint32_t iterations, const uint32_t ma
 
 void* allocateExecutableMemory(size_t size)
 {
-
-#ifdef _WIN64
-return VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-#else
-#   if defined(__APPLE__)
+    #if defined(__APPLE__)
     return mmap(0, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, -1, 0);
-#   else
+    #else
     return mmap(0, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-#   endif
-#endif
+    #endif
 }
 
 
 void protectExecutableMemory(void *p, size_t size)
 {
-#ifdef _WIN64
-    DWORD oldProtect;
-    VirtualProtect(p, size, PAGE_EXECUTE_READ, &oldProtect);
-#else
     mprotect(p, size, PROT_READ | PROT_EXEC);
-#endif
 }
 
 void unprotectExecutableMemory(void *p, size_t size)
 {
-#ifdef _WIN64
-    DWORD oldProtect;
-    VirtualProtect(p, size, PAGE_EXECUTE_READWRITE, &oldProtect);
-#else
     mprotect(p, size, PROT_WRITE | PROT_EXEC);
-#endif
 }
 
 
 void flushInstructionCache(void *p, size_t size)
 {
-#ifdef _WIN64
-    ::FlushInstructionCache(GetCurrentProcess(), p, size);
-#else
 #   ifndef __FreeBSD__
     __builtin___clear_cache(reinterpret_cast<char*>(p), reinterpret_cast<char*>(p) + size);
 #   endif
-#endif
 }
 
 template<size_t N>
