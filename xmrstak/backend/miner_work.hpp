@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cassert>
 #include <cstring>
+#include <sstream>
+#include <xmrstak/misc/console.hpp>
 
 namespace xmrstak
 {
@@ -33,6 +35,24 @@ namespace xmrstak
 			assert(iWorkSize <= sizeof(bWorkBlob));
 			memcpy(this->bWorkBlob, bWork, iWorkSize);
 			memcpy(this->sJobID, sJobID, sizeof(miner_work::sJobID));
+
+            printer::inst()->print_msg(L2, "miner_work +++");
+            printer::inst()->print_msg(L2, "miner_work: sJobID = %s", sJobID);
+            printer::inst()->print_msg(L2, "miner_work: iWorkSize = %d", iWorkSize);
+            printer::inst()->print_msg(L2, "miner_work: iTarget = %d", iTarget);
+            printer::inst()->print_msg(L2, "miner_work: bNiceHash = %d", int(bNiceHash));
+            printer::inst()->print_msg(L2, "miner_work: iPoolId = %d", iPoolId);
+            printer::inst()->print_msg(L2, "miner_work: iBlockHeiht = %d", iBlockHeiht);
+
+            std::stringstream stream;
+            stream << "miner_work: bWork = ";
+            for (int i = 0 ;i < 128; i++) {
+                stream << (unsigned  char)bWork[i];
+            }
+            std::string sWork( stream.str() );
+            printer::inst()->print_msg(L2, sWork.data());
+
+            printer::inst()->print_msg(L2, "miner_work ---");
 		}
 
 		miner_work(miner_work&& from) : iWorkSize(from.iWorkSize), iTarget(from.iTarget),

@@ -285,6 +285,9 @@ bool jpsock::jpsock_thd_main()
 
 bool jpsock::process_line(char* line, size_t len)
 {
+    printer::inst()->print_msg(L0, "process_line: line_out = %s", line);
+    printer::inst()->print_msg(L0, "process_line: len = %d", len);
+
 	prv->jsonDoc.SetNull();
 	prv->parseAllocator.Clear();
 	prv->callAllocator.Clear();
@@ -294,6 +297,7 @@ bool jpsock::process_line(char* line, size_t len)
 	line[len-1] = '\0';
 
 	//printf("RECV: %s\n", line);
+    printer::inst()->print_msg(L0, "process_line: line_in = %s", line);
 
 	if (prv->jsonDoc.ParseInsitu(line).HasParseError())
 		return set_socket_error("PARSE error: Invalid JSON");
@@ -443,6 +447,22 @@ bool jpsock::process_pool_job(const opq_json_val* params, const uint64_t message
 	if (!hex2bin(blob->GetString(), iWorkLen * 2, oPoolJob.bWorkBlob))
 		return set_socket_error("PARSE error: Job error 4");
 
+    {
+        std::string buffer = std::string(blob->GetString(), blob->GetStringLength());
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.blob = %s", buffer.c_str());
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.iWorkLen = %d", iWorkLen);
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.iWorkLen * 2 = %d", iWorkLen * 2);
+    }
+
+    {
+        std::ostringstream ss;
+        ss << std::hex;
+        std::copy( &oPoolJob.bWorkBlob[0], &oPoolJob.bWorkBlob[iWorkLen], std::ostream_iterator<unsigned int>(ss, "|"));
+
+        std::string buffer(ss.str());
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.bWorkBlob = %s", buffer.c_str());
+    }
+
 	// lock reading of oCurrentJob
 	std::unique_lock<std::mutex> jobIdLock(job_mutex);
 	// compare possible non equal length job id's
@@ -466,7 +486,19 @@ bool jpsock::process_pool_job(const opq_json_val* params, const uint64_t message
 			return set_socket_error("PARSE error: Invalid target");
 
 		oPoolJob.iTarget = t32_to_t64(iTempInt);
-	}
+
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.target = %s", target->GetString());
+        printer::inst()->print_msg(L2, "process_pool_job: hex2bin.target.length = %d", target->GetStringLength());
+        {
+            std::ostringstream ss;
+            std::copy( &sTempStr[0], &sTempStr[sizeof(sTempStr)], std::ostream_iterator<char>(ss, ""));
+            std::string buffer(ss.str());
+            printer::inst()->print_msg(L2, "process_pool_job: hex2bin.sTempStr = %s", buffer.c_str());
+        }
+        printer::inst()->print_msg(L2, "process_pool_job: iTempInt = %d", iTempInt);
+        printer::inst()->print_msg(L2, "process_pool_job: oPoolJob.iTarget = %d", oPoolJob.iTarget);
+
+    }
 	else if(target_slen <= 16)
 	{
 		oPoolJob.iTarget = 0;
@@ -533,6 +565,8 @@ void jpsock::disconnect(bool quiet)
 
 bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult, uint64_t& messageId)
 {
+    printer::inst()->print_msg(L2, "cmd_ret_wait: sPacket = %s", sPacket);
+    printer::inst()->print_msg(L2, "cmd_ret_wait: messageId = %s", messageId);
 	//printf("SEND: %s\n", sPacket);
 
 	/*Set up the call rsp for the call reply*/
@@ -575,7 +609,10 @@ bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult, uint64_t&
 		poResult.val = &prv->oCallValue;
 		messageId = prv->oCallRsp.iMessageId;
 	}
-	return bSuccess;
+
+    printer::inst()->print_msg(L2, "cmd_ret_wait: messageId = %d", messageId);
+
+    return bSuccess;
 }
 
 bool jpsock::cmd_login()
